@@ -40,7 +40,7 @@ jobs:
           raw=$(git branch -r --contains ${{ github.ref }})
           echo "raw=$raw"
           branch="$(echo ${raw//origin\//} | tr -d '\n')"
-          echo "{name}=branch" >> $GITHUB_OUTPUT
+          echo "branch=$branch" >> $GITHUB_OUTPUT
           echo "Branch is $branch."
 
   use_branch_name:
