@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get branch names.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get branch names post-checkout
         id: branch-names
         uses: tj-actions/branch-names@v8
 
@@ -24,21 +27,19 @@ jobs:
           echo "The source branch of a pull request: ${{ steps.branch-names.outputs.head_ref_branch }}"
           echo "The branch that triggered the workflow run: ${{ steps.branch-names.outputs.ref_branch }}"
           echo "The tag that triggered the workflow run: "${{ steps.branch-names.outputs.tag }}
-    
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Get branch names post-checkout
-        id: branch-names-2
-        uses: tj-actions/branch-names@v8
-
-      - name: show-output-2
+      - name: Get current branch
+        id: branch-name
         run: |
-          echo "Running on default branch? ${{ steps.branch-names-2.outputs.is_default }}"
-          echo "Running on a tag? ${{ steps.branch-names-2.outputs.is_tag }}"
-          echo "Default branch name is: ${{ steps.branch-names-2.outputs.default_branch }}"
-          echo "The current branch name regardless of event_type: ${{ steps.branch-names-2.outputs.current_branch }}"
-          echo "The target branch of a pull request: ${{ steps.branch-names-2.outputs.base_ref_branch }}"
-          echo "The source branch of a pull request: ${{ steps.branch-names-2.outputs.head_ref_branch }}"
-          echo "The branch that triggered the workflow run: ${{ steps.branch-names-2.outputs.ref_branch }}"
-          echo "The tag that triggered the workflow run: "${{ steps.branch-names-2.outputs.tag }}
+          raw=$(git branch -r --contains ${{ github.ref }})
+          branch=${raw##*/}
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          echo "Branch is $branch."
+
+  use_branch_name:
+    runs-on: ubunto-latest
+    needs: ['get_branch_info']
+
+    steps:
+      - run: |
+          echo "Branch from other job: ${{ needs.get_branch_info.outputs.branch }}"
