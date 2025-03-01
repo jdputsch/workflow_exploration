@@ -37,7 +37,7 @@ jobs:
           echo "Branch is $branch."
 
   use_branch_name:
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
     needs: ['get_branch_info']
 
     steps:
