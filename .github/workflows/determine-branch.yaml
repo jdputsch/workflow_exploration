@@ -14,35 +14,13 @@ jobs:
         id: branch-names
         uses: tj-actions/branch-names@v8
 
-      - name: is_default
+      - name: show-output
         run: |
           echo "Running on default branch? ${{ steps.branch-names.outputs.is_default }}"
-
-      - name: is_tag
-        run: |
           echo "Running on a tag? ${{ steps.branch-names.outputs.is_tag }}"
-
-      - name: default_branch
-        run: |
           echo "Default branch name is: ${{ steps.branch-names.outputs.default_branch }}"
-        # Outputs: "0.0.1"
-
-      - name: current_branch
-        run: |
           echo "The current branch name regardless of event_type: ${{ steps.branch-names.outputs.current_branch }}"
-
-      - name: base_ref_branch
-        run: |
           echo "The target branch of a pull request: ${{ steps.branch-names.outputs.base_ref_branch }}"
-
-      - name: head_ref_branch
-        run: |
           echo "The source branch of a pull request: ${{ steps.branch-names.outputs.head_ref_branch }}"
-
-      - name: ref_branch
-        run: |
           echo "The branch that triggered the workflow run: ${{ steps.branch-names.outputs.ref_branch }}"
-    
-      - name: tag
-        run: |
-           echo "The tag that triggered the workflow run: "${{ steps.tag.outputs.tag }}
+          echo "The tag that triggered the workflow run: "${{ steps.tag.outputs.tag }}
