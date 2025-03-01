@@ -1,0 +1,17 @@
+# Explore ways to get branch name, especially when running on a tag or specific SHA
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  get_branch_info:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Run a one-line script
+        run: echo Hello, world!
