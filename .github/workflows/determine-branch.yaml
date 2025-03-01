@@ -1,0 +1,32 @@
+# Explore ways to get branch name, especially when running on a tag or specific SHA
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  get_branch_info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get branch names.
+        id: branch-names
+        uses: tj-actions/branch-names@v8
+
+      - name: Current branch name
+        run: |
+          echo "Running on branch: ${{ steps.branch-names.outputs.current_branch }}"
+
+      - name: Running on a tag branch.
+        if: steps.branch-names.outputs.is_tag == 'true'
+        run: |
+          echo "Running on: ${{ steps.branch-names.outputs.tag }}"
+
+      - name: Get the current tag
+        if: steps.branch-names.outputs.is_tag == 'true'  # Replaces: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "${{ steps.branch-names.outputs.tag }}"
+        # Outputs: "0.0.1"
+
+      
