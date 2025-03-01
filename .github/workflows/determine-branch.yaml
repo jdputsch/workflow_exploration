@@ -29,6 +29,11 @@ jobs:
           echo "The branch that triggered the workflow run: ${{ steps.branch-names.outputs.ref_branch }}"
           echo "The tag that triggered the workflow run: "${{ steps.branch-names.outputs.tag }}
 
+      - name: base_ref vs event.base_ref
+        run: |
+          echo "github.base_ref = ${{ github.base_ref }}
+          echo "github.event.base_ref = ${{ github.event.base_ref }}"
+          
       - name: Get current branch
         id: branch-name
         run: |
