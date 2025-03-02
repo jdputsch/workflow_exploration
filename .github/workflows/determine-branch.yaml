@@ -9,7 +9,7 @@ jobs:
   get_branch_info:
     runs-on: ubuntu-latest
     outputs:
-      branch: ${{ steps.branch-name.outputs.branch }}
+      branches: ${{ steps.branch-name.outputs.branches }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,30 +17,30 @@ jobs:
           fetch-depth: 0
 
       - name: Get branch names post-checkout
-        id: branch-names
+        id: branch-names-action
         uses: tj-actions/branch-names@v8
 
       - name: show-output
         run: |
-          echo "Running on default branch? ${{ steps.branch-names.outputs.is_default }}"
-          echo "Running on a tag? ${{ steps.branch-names.outputs.is_tag }}"
-          echo "Default branch name is: ${{ steps.branch-names.outputs.default_branch }}"
-          echo "The current branch name regardless of event_type: ${{ steps.branch-names.outputs.current_branch }}"
-          echo "The target branch of a pull request: ${{ steps.branch-names.outputs.base_ref_branch }}"
-          echo "The source branch of a pull request: ${{ steps.branch-names.outputs.head_ref_branch }}"
-          echo "The branch that triggered the workflow run: ${{ steps.branch-names.outputs.ref_branch }}"
-          echo "The tag that triggered the workflow run: "${{ steps.branch-names.outputs.tag }}
+          echo "Running on default branch? ${{ steps.branch-names-action.outputs.is_default }}"
+          echo "Running on a tag? ${{ steps.branch-names-action.outputs.is_tag }}"
+          echo "Default branch name is: ${{ steps.branch-names-action.outputs.default_branch }}"
+          echo "The current branch name regardless of event_type: ${{ steps.branch-names-action.outputs.current_branch }}"
+          echo "The target branch of a pull request: ${{ steps.branch-names-action.outputs.base_ref_branch }}"
+          echo "The source branch of a pull request: ${{ steps.branch-names-action.outputs.head_ref_branch }}"
+          echo "The branch that triggered the workflow run: ${{ steps.branch-names-action.outputs.ref_branch }}"
+          echo "The tag that triggered the workflow run: "${{ steps.branch-names-action.outputs.tag }}
 
-      - name: base_ref vs event.base_ref
-        run: |
-          echo "github.base_ref = ${{ github.base_ref }}"
-          echo "github.event.base_ref = ${{ github.event.base_ref }}"
-
-      - name: Get current branch
-        id: branch-name
+      - name: Get branch names(s)
+        id: branch-names
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           echo "raw=$raw"
-          branch="$(echo ${raw//origin\//} | tr -d '\n' | sort -u)"
-          echo "branch=$branch" >> $GITHUB_OUTPUT
-          echo "Branch is $branch."
+          branches=$(echo "$raw" | sed -E -e 's/^[ ]+//; s,origin/,,; s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;')
+          echo "branches=$branches" >> $GITHUB_OUTPUT
+          echo "Branches is $branches."
+
+      - name: run if on main branch
+        if: contains(fromJSON(steps.branch-names.outputs.branches), 'main')
+        run: |
+          echo ${{ steps.branch-names.outputs.branches }}
