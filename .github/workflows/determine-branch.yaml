@@ -39,8 +39,13 @@ jobs:
       - name: Get current branch
         id: branch-name
         run: |
+          echo "Shell is '$SHELL'"
           raw=$(git branch -r --contains ${{ github.ref }})
           echo "raw=$raw"
-          branch="$(echo ${raw//origin\//} | tr -d '\n' | sort -u)"
+          branches=$(echo ${raw//origin\//} | grep -v -- '->' | sort -u | tr -d '\n')"
           echo "branch=$branch" >> $GITHUB_OUTPUT
           echo "Branch is $branch."
+
+      # - name: Run if push a tag and on main branch
+      #   if: startsWith(github.ref, 'refs/tags/') && contains(steps.branch-name.outputs.branch, 'main')
+      #   run: Run on Tag action on 'main' branch only.
