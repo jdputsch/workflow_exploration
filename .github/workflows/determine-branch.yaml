@@ -36,9 +36,9 @@ jobs:
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           echo "raw=$raw"
-          branches=$(echo "$raw" | sed -E -e 's/^[ ]+//; s,origin/,,; s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;')
-          echo "branches=$branches" >> $GITHUB_OUTPUT
-          echo "Branches is $branches."
+          branches=$(echo "$raw" | sed -E -e 's/^[ ]+//; s,origin/,,; s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;' | tr -d '\n')
+          echo "branches='$branches'" >> $GITHUB_OUTPUT
+          echo "Branches is '$branches'."
 
       - name: run if on main branch
         if: contains(fromJSON(steps.branch-names.outputs.branches), 'main')
