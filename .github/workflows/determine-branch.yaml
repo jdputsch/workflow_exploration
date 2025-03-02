@@ -42,7 +42,7 @@ jobs:
           echo "Shell is '$SHELL'"
           raw=$(git branch -r --contains ${{ github.ref }})
           echo "raw=$raw"
-          branches=$(echo ${raw//origin\//} | grep -v -- '->' | sort -u | tr -d '\n')"
+          branches="$(echo ${raw//origin\//} | grep -v -- '->' | sort -u | tr -d '\n')"
           echo "branch=$branch" >> $GITHUB_OUTPUT
           echo "Branch is $branch."
 
