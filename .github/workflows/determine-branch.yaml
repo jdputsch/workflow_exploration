@@ -79,7 +79,7 @@ jobs:
     name: "CD - Gate on Tag"
     runs-on: ubuntu-latest
     needs: branch-names
-    if: needs.branch-names.outputs.is_semver
+    if: fromJSON(needs.branch-names.outputs.is_semver)
     steps:
     - name: "Display Branch and Tag names"
       run: |
