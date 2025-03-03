@@ -57,9 +57,10 @@ jobs:
     steps:
     - name: "Display Branch and Tag names"
       run: |
-        printf "Branches (raw): %s" '${{fromJson(needs.branch-names.outputs.branches)}}'
-        printf "Branches: %s" '${{fromJson(needs.branch-names.outputs.branches)}}'
+        printf "Branches (raw): %s\n" '${{needs.branch-names.outputs.branches}}'
+        printf "Branches: %s\n" '${{fromJson(needs.branch-names.outputs.branches)}}'
         echo "Tag: ${{needs.branch-names.outputs.tag}}"
         echo "Tag Num: ${{needs.branch-names.outputs.tag_num}}"
         echo "Is Tag: ${{needs.branch-names.outputs.is_tag}}"
-        printf "Tags: %s" '${{fromJson(needs.branch-names.outputs.tags)}}'
+        printf "Tags (raw): %s\n" '${{needs.branch-names.outputs.tags}}'
+        printf "Tags: %s\n" '${{fromJson(needs.branch-names.outputs.tags)}}'
