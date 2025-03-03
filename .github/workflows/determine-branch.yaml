@@ -49,7 +49,7 @@ jobs:
           fi
           # Get all the tags associated with the ref
           TAGS=$(git tag --points-at ${GITHUB_REF} | sed -E -e 's/^[ ]+//;s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;' | tr -d '\n' )
-          echo "tags="'$TAGS'" >> "$GITHUB_OUTPUT"
+          echo "tags='$TAGS'" >> "$GITHUB_OUTPUT"
   release:
     name: "CD - Release"
     runs-on: ubuntu-latest
