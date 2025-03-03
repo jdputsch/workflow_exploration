@@ -6,41 +6,61 @@ on:
   workflow_dispatch:
 
 jobs:
-  get_branch_info:
+  branch-names:
+    name: "Get Branch and Tag names"
     runs-on: ubuntu-latest
     outputs:
-      branches: ${{ steps.branch-name.outputs.branches }}
+      # All branches associated with the github ref, as an arrary. Use fromJSON(...) to parse.
+      branches: ${{ steps.branch-names.outputs.branches }}
+      # Tag, if any for the ref (applies when ref is a tag)
+      tag: ${{ steps.tag.outputs.tag }}
+      # Tag without a leading "v"
+      tag_num: ${{ steps.tag.outputs.tag_num }}
+      # Ref is a tag
+      is_tag: ${{ steps.tag.outputs.is_tag }}
+      # Tags (if more than one), for the ref. Applies whether or not the ref is a tag.
+      tags: ${{ steps.tag.outputs.tags }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Get branch names post-checkout
-        id: branch-names-action
-        uses: tj-actions/branch-names@v8
-
-      - name: show-output
-        run: |
-          echo "Running on default branch? ${{ steps.branch-names-action.outputs.is_default }}"
-          echo "Running on a tag? ${{ steps.branch-names-action.outputs.is_tag }}"
-          echo "Default branch name is: ${{ steps.branch-names-action.outputs.default_branch }}"
-          echo "The current branch name regardless of event_type: ${{ steps.branch-names-action.outputs.current_branch }}"
-          echo "The target branch of a pull request: ${{ steps.branch-names-action.outputs.base_ref_branch }}"
-          echo "The source branch of a pull request: ${{ steps.branch-names-action.outputs.head_ref_branch }}"
-          echo "The branch that triggered the workflow run: ${{ steps.branch-names-action.outputs.ref_branch }}"
-          echo "The tag that triggered the workflow run: "${{ steps.branch-names-action.outputs.tag }}
-
-      - name: Get branch names(s)
-        id: branch-names
+      - id: branch-names
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           echo "raw=$raw"
           branches=$(echo "$raw" | sed -E -e 's/^[ ]+//; s,origin/,,; s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;' | tr -d '\n')
           echo "branches='$branches'" >> $GITHUB_OUTPUT
           echo "Branches is '$branches'."
-
-      - name: run if on main branch
-        if: contains(fromJSON(steps.branch-names.outputs.branches), 'main')
+      - id: tag
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          echo ${{ steps.branch-names.outputs.branches }}
+          # "Set the tag name..."
+          if [[ "$GITHUB_REF" == "refs/tags/"* ]]; then
+            REF=$(printf "%q" "$GITHUB_REF")
+            TAG="${REF/refs\/tags\//}"
+            TAG_NUM="${REF/refs\/tags\/v/}"
+
+            echo "tag=$(eval printf "%s" "$TAG")" >> "$GITHUB_OUTPUT"
+            echo "tag_num=$(eval printf "%s" "$TAG_NUM")" >> "$GITHUB_OUTPUT"
+            echo "is_tag=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_tag=false" >> "$GITHUB_OUTPUT"
+          fi
+          # Get all the tags associated with the ref
+          TAGS=$(git tag --points-at ${GITHUB_REF} | sed -E -e 's/^[ ]+//;s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;' | tr -d '\n' )
+          echo "tags="'$TAGS'" >> "$GITHUB_OUTPUT"
+  release:
+    name: "CD - Release"
+    runs-on: ubuntu-latest
+    needs: branch-names
+    steps:
+    - name: "Display Branch and Tag names"
+      run: |
+        echo "Branches (raw): ${{needs.branch-names.outputs.branches}}"
+        echo "Branches: ${{fromJson(needs.branch-names.outputs.branches)}}"
+        echo "Tag: ${{needs.branch-names.outputs.tag}}"
+        echo "Tag Num: ${{needs.branch-names.outputs.tag_num}}"
+        echo "Is Tag: ${{needs.branch-names.outputs.is_tag}}"
+        echo "Tags (raw): ${{needs.branch-names.outputs.tags}}"
+        echo "Tags: ${{fromJson(needs.branch-names.outputs.tags)}}"
