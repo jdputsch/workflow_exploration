@@ -71,6 +71,7 @@ jobs:
         echo "Tag: ${{needs.branch-names.outputs.tag}}"
         echo "Tag Num: ${{needs.branch-names.outputs.tag_num}}"
         echo "Is Tag: ${{needs.branch-names.outputs.is_tag}}"
+        echo "Is Semver: ${{needs.branch-names.outputs.is_semver}}"
         printf "Tags (raw): %s\n" '${{needs.branch-names.outputs.tags}}'
         printf "Tags: %s\n" '${{fromJson(needs.branch-names.outputs.tags)}}'
 
@@ -78,7 +79,7 @@ jobs:
     name: "CD - Gate on Tag"
     runs-on: ubuntu-latest
     needs: branch-names
-    if: needs.branch-names.outputs.is_tag && needs.branch-names.outputs.is_semver
+    if: needs.branch-names.outputs.is_semver
     steps:
     - name: "Display Branch and Tag names"
       run: |
@@ -87,5 +88,6 @@ jobs:
         echo "Tag: ${{needs.branch-names.outputs.tag}}"
         echo "Tag Num: ${{needs.branch-names.outputs.tag_num}}"
         echo "Is Tag: ${{needs.branch-names.outputs.is_tag}}"
+        echo "Is Semver: ${{needs.branch-names.outputs.is_semver}}"
         printf "Tags (raw): %s\n" '${{needs.branch-names.outputs.tags}}'
         printf "Tags: %s\n" '${{fromJson(needs.branch-names.outputs.tags)}}'
