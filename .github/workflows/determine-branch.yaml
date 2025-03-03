@@ -69,7 +69,7 @@ jobs:
     name: "CD - Gate on Tag"
     runs-on: ubuntu-latest
     needs: branch-names
-    if: ${{ needs.branch-names.outputs.is_tag == 'true' }} && ${{startsWith(needs.branch-names.outputs.tag, 'v')}}
+    if: false && ${{ needs.branch-names.outputs.is_tag == 'true' }} && ${{startsWith(needs.branch-names.outputs.tag, 'v')}}
     steps:
     - name: "Display Branch and Tag names"
       run: |
