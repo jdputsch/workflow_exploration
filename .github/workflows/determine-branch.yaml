@@ -18,6 +18,8 @@ jobs:
       tag_num: ${{ steps.tag.outputs.tag_num }}
       # Ref is a tag
       is_tag: ${{ steps.tag.outputs.is_tag }}
+      # Ref is a semver tag
+      is_semverf: ${{ steps.tag.outputs.is_semver }}
       # Tags (if more than one), for the ref. Applies whether or not the ref is a tag.
       tags: ${{ steps.tag.outputs.tags }}
     steps:
@@ -35,6 +37,7 @@ jobs:
         env:
           GITHUB_REF: ${{ github.ref }}
         run: |
+          semver_regex="^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?$"
           # "Set the tag name..."
           if [[ "$GITHUB_REF" == "refs/tags/"* ]]; then
             REF=$(printf "%q" "$GITHUB_REF")
@@ -44,8 +47,14 @@ jobs:
             echo "tag=$(eval printf "%s" "$TAG")" >> "$GITHUB_OUTPUT"
             echo "tag_num=$(eval printf "%s" "$TAG_NUM")" >> "$GITHUB_OUTPUT"
             echo "is_tag=true" >> "$GITHUB_OUTPUT"
+            if [[ $TAG =~ $semver_regex ]]; then
+              echo "is_semver=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "is_semver=false" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "is_tag=false" >> "$GITHUB_OUTPUT"
+            echo "is_semver=false" >> "$GITHUB_OUTPUT"
           fi
           # Get all the tags associated with the ref
           TAGS=$(git tag --points-at ${GITHUB_REF} | sed -E -e 's/^[ ]+//;s/^/"/; s/$/",/; 1s/^/[/; $s/,/]/;' | tr -d '\n' )
