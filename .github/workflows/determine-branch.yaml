@@ -1,4 +1,4 @@
-# Explore ways to get branch name, especially when running on a tag or specific SHA
+# Explore ways to get branch  name, especially when running on a tag or specific SHA
 name: CI
 
 on:
